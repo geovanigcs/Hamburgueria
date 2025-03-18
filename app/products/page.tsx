@@ -1,7 +1,7 @@
 export const ProductPage = () => {
   return (
     <div className="">
-      <h1>fala</h1>
+      <h1>Diga</h1>
     </div>
   );
 };

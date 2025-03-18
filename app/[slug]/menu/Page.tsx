@@ -20,7 +20,7 @@ const RestaurantMenuPage = async ({
 }: RestaurantMenuPageProps) => {
   const { slug } = await params;
   const { consumptionMethod } = await searchParams;
-  if (!isConsumptionMethodValid(consumptionMethod)) {
+  if (!isConsumptionMethodValid(consumptionMethod.toUpperCase())) {
     return notFound();
   }
   const restaurant = await db.restaurant.findUnique({
@@ -43,3 +43,21 @@ const RestaurantMenuPage = async ({
 };
 
 export default RestaurantMenuPage;
+
+// import { db } from "@/lib/prisma";
+
+// interface RestaurantMenuPageProps {
+//   params: Promise<{ slug: string }>
+// }
+
+// const RestaurantMenuPage = async ({ params }: RestaurantMenuPageProps) => {
+//   const { slug } = await params;
+//   // const restaurant = await db.restaurant.findUnique({
+//   //   where: { slug },
+//   // });
+//   return (
+//     <h1>Menu {slug}</h1>
+//   )
+// }
+
+// export default RestaurantMenuPage;
