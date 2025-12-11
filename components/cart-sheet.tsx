@@ -1,0 +1,294 @@
+"use client";
+
+import { Trash2 } from "lucide-react";
+import Image from "next/image";
+import { useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from "@/components/ui/sheet";
+
+interface CartItem {
+    id: string;
+    name: string;
+    price: number;
+    quantity: number;
+    imageUrl: string;
+}
+
+interface CartSheetProps {
+    trigger?: React.ReactNode;
+}
+
+export function CartSheet({ trigger }: CartSheetProps) {
+    const [isOpen, setIsOpen] = useState(false);
+    const [cartItems, setCartItems] = useState<CartItem[]>([
+        {
+            id: "1",
+            name: "Oferta Média Big Gigio Duplo",
+            price: 39.9,
+            quantity: 1,
+            imageUrl: "/combo1.png",
+        },
+    ]);
+    const [showCheckoutDialog, setShowCheckoutDialog] = useState(false);
+    const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+    const [customerName, setCustomerName] = useState("");
+    const [customerCPF, setCustomerCPF] = useState("");
+
+    const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const discount = 0;
+    const total = subtotal - discount;
+
+    const updateQuantity = (id: string, delta: number) => {
+        setCartItems((items) =>
+            items
+                .map((item) =>
+                    item.id === id ? { ...item, quantity: Math.max(0, item.quantity + delta) } : item
+                )
+                .filter((item) => item.quantity > 0)
+        );
+    };
+
+    const removeItem = (id: string) => {
+        setCartItems((items) => items.filter((item) => item.id !== id));
+    };
+
+    const handleCheckout = () => {
+        setShowCheckoutDialog(true);
+    };
+
+    const handleFinalize = () => {
+        if (customerName && customerCPF) {
+            setShowCheckoutDialog(false);
+            setShowSuccessDialog(true);
+        }
+    };
+
+    return (
+        <>
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
+                <SheetTrigger asChild>
+                    {trigger || <Button>Ver Sacola</Button>}
+                </SheetTrigger>
+                <SheetContent side="right" className="w-full sm:max-w-md">
+                    <SheetHeader>
+                        <SheetTitle>Sacola</SheetTitle>
+                    </SheetHeader>
+
+                    {cartItems.length === 0 ? (
+                        <div className="flex h-full items-center justify-center">
+                            <p className="text-gray-500">Sua sacola está vazia</p>
+                        </div>
+                    ) : (
+                        <div className="flex h-full flex-col">
+                            {/* Cart items */}
+                            <div className="flex-1 space-y-4 overflow-y-auto py-4">
+                                {cartItems.map((item) => (
+                                    <div key={item.id} className="flex gap-3">
+                                        <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg">
+                                            <Image
+                                                src={item.imageUrl}
+                                                alt={item.name}
+                                                fill
+                                                className="object-cover"
+                                            />
+                                        </div>
+                                        <div className="flex flex-1 flex-col justify-between">
+                                            <div className="flex items-start justify-between">
+                                                <div className="flex-1">
+                                                    <h3 className="text-sm font-semibold leading-tight">
+                                                        {item.name}
+                                                    </h3>
+                                                    <p className="mt-1 text-sm font-semibold">
+                                                        R$ {item.price.toFixed(2).replace(".", ",")}
+                                                    </p>
+                                                </div>
+                                                <button
+                                                    onClick={() => removeItem(item.id)}
+                                                    className="text-gray-400 hover:text-gray-600"
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </button>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <Button
+                                                    variant="outline"
+                                                    size="icon"
+                                                    className="h-7 w-7 rounded-full"
+                                                    onClick={() => updateQuantity(item.id, -1)}
+                                                >
+                                                    <svg
+                                                        width="16"
+                                                        height="16"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                    >
+                                                        <path
+                                                            d="M15 18l-6-6 6-6"
+                                                            strokeWidth="2"
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                        />
+                                                    </svg>
+                                                </Button>
+                                                <span className="w-6 text-center text-sm">{item.quantity}</span>
+                                                <Button
+                                                    size="icon"
+                                                    className="h-7 w-7 rounded-full bg-red-600 hover:bg-red-700"
+                                                    onClick={() => updateQuantity(item.id, 1)}
+                                                >
+                                                    <svg
+                                                        width="16"
+                                                        height="16"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                    >
+                                                        <path
+                                                            d="M9 18l6-6-6-6"
+                                                            strokeWidth="2"
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                        />
+                                                    </svg>
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Summary */}
+                            <div className="space-y-4 border-t pt-4">
+                                <div className="space-y-2 text-sm">
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-500">Subtotal</span>
+                                        <span>R$ {subtotal.toFixed(2).replace(".", ",")}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-500">Descontos</span>
+                                        <span>R$ {discount.toFixed(2).replace(".", ",")}</span>
+                                    </div>
+                                    <div className="flex justify-between text-base font-semibold">
+                                        <span>Total</span>
+                                        <span>R$ {total.toFixed(2).replace(".", ",")}</span>
+                                    </div>
+                                </div>
+
+                                <Button
+                                    className="w-full rounded-full bg-yellow-400 text-black hover:bg-yellow-500"
+                                    onClick={handleCheckout}
+                                >
+                                    Finalizar Pedido
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+                </SheetContent>
+            </Sheet>
+
+            {/* Checkout Dialog */}
+            {showCheckoutDialog && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                    <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-lg">
+                        <h2 className="mb-2 text-center text-xl font-semibold">Quase lá!</h2>
+                        <p className="mb-6 text-center text-sm text-gray-600">
+                            Para finalizar o seu pedido, insira os seus dados abaixo.
+                        </p>
+
+                        <div className="space-y-4">
+                            <div>
+                                <label className="mb-2 block text-sm font-medium">Seu nome</label>
+                                <Input
+                                    placeholder="Digite seu nome"
+                                    value={customerName}
+                                    onChange={(e) => setCustomerName(e.target.value)}
+                                />
+                            </div>
+                            <div>
+                                <label className="mb-2 block text-sm font-medium">Seu CPF</label>
+                                <Input
+                                    placeholder="Digite seu CPF"
+                                    value={customerCPF}
+                                    onChange={(e) => setCustomerCPF(e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="mt-6 flex gap-2">
+                            <Button
+                                variant="ghost"
+                                className="flex-1"
+                                onClick={() => setShowCheckoutDialog(false)}
+                            >
+                                Cancelar
+                            </Button>
+                            <Button
+                                className="flex-1 bg-red-600 hover:bg-red-700"
+                                onClick={handleFinalize}
+                            >
+                                Finalizar
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Success Dialog */}
+            {showSuccessDialog && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                    <div className="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-lg">
+                        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-600">
+                            <svg
+                                width="32"
+                                height="32"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="white"
+                                strokeWidth="3"
+                            >
+                                <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                        </div>
+
+                        <h2 className="mb-2 text-xl font-semibold">Pedido Efetuado!</h2>
+                        <p className="mb-6 text-sm text-gray-600">
+                            Seu pedido foi realizado com sucesso!
+                        </p>
+
+                        <div className="flex gap-2">
+                            <Button
+                                variant="ghost"
+                                className="flex-1 text-red-600"
+                                onClick={() => {
+                                    setShowSuccessDialog(false);
+                                    setIsOpen(false);
+                                }}
+                            >
+                                Ver pedidos
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                className="flex-1"
+                                onClick={() => {
+                                    setShowSuccessDialog(false);
+                                    setIsOpen(false);
+                                }}
+                            >
+                                Continuar
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
+    );
+}
