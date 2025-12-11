@@ -20,7 +20,7 @@ const RestaurantPage = async ({ params }: RestaurantPageProps) => {
         <div className="flex h-screen flex-col items-center justify-center px-6 pt-24">
             <div className="flex flex-col items-center gap-2">
                 <Image src="/logo.png" alt={restaurant.name} width={82} height={82} />
-                <h2 className="font-semibold">Gigio's Burguer</h2>
+                <h2 className="font-semibold">Gigio&apos;s Burguer</h2>
             </div>
             <div className="pt-24 text-center space-y-2">
                 <h3 className="text-2xl font-semibold">

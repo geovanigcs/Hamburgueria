@@ -1,12 +1,13 @@
+import { Clock } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Clock } from "lucide-react";
 
-import { db } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { db } from "@/lib/prisma";
+
 import { CartButton } from "./components/cart-button";
 
 interface RestaurantMenuPageProps {

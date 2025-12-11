@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { CartSheet } from "@/components/cart-sheet";
+import { Button } from "@/components/ui/button";
 
 export function CartButton() {
     return (
