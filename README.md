@@ -91,6 +91,3 @@ Para usar PostgreSQL local sem Docker:
 sudo service postgresql start
 ```
 
-## 📄 Licença
-
-Este projeto está sob a licença MIT.
