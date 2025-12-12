@@ -2,6 +2,7 @@
 
 import { Trash2 } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -13,52 +14,22 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet";
-
-interface CartItem {
-    id: string;
-    name: string;
-    price: number;
-    quantity: number;
-    imageUrl: string;
-}
+import { useCart } from "@/contexts/cart-context";
 
 interface CartSheetProps {
     trigger?: React.ReactNode;
 }
 
 export function CartSheet({ trigger }: CartSheetProps) {
+    const router = useRouter();
+    const { cartItems, updateQuantity, removeItem, clearCart, subtotal, total } = useCart();
     const [isOpen, setIsOpen] = useState(false);
-    const [cartItems, setCartItems] = useState<CartItem[]>([
-        {
-            id: "1",
-            name: "Oferta Média Big Gigio Duplo",
-            price: 39.9,
-            quantity: 1,
-            imageUrl: "/combo1.png",
-        },
-    ]);
     const [showCheckoutDialog, setShowCheckoutDialog] = useState(false);
     const [showSuccessDialog, setShowSuccessDialog] = useState(false);
     const [customerName, setCustomerName] = useState("");
     const [customerCPF, setCustomerCPF] = useState("");
 
-    const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const discount = 0;
-    const total = subtotal - discount;
-
-    const updateQuantity = (id: string, delta: number) => {
-        setCartItems((items) =>
-            items
-                .map((item) =>
-                    item.id === id ? { ...item, quantity: Math.max(0, item.quantity + delta) } : item
-                )
-                .filter((item) => item.quantity > 0)
-        );
-    };
-
-    const removeItem = (id: string) => {
-        setCartItems((items) => items.filter((item) => item.id !== id));
-    };
 
     const handleCheckout = () => {
         setShowCheckoutDialog(true);
@@ -68,7 +39,15 @@ export function CartSheet({ trigger }: CartSheetProps) {
         if (customerName && customerCPF) {
             setShowCheckoutDialog(false);
             setShowSuccessDialog(true);
+            clearCart();
+            setCustomerName("");
+            setCustomerCPF("");
         }
+    };
+
+    const handleContinueShopping = () => {
+        setShowSuccessDialog(false);
+        setIsOpen(false);
     };
 
     return (
@@ -79,7 +58,19 @@ export function CartSheet({ trigger }: CartSheetProps) {
                 </SheetTrigger>
                 <SheetContent side="right" className="w-full sm:max-w-md">
                     <SheetHeader>
-                        <SheetTitle>Sacola</SheetTitle>
+                        <div className="flex items-center justify-between">
+                            <SheetTitle>Sacola</SheetTitle>
+                            {cartItems.length > 0 && (
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={clearCart}
+                                    className="text-sm text-red-600 hover:text-red-700 hover:bg-red-50"
+                                >
+                                    Limpar tudo
+                                </Button>
+                            )}
+                        </div>
                     </SheetHeader>
 
                     {cartItems.length === 0 ? (
@@ -271,19 +262,16 @@ export function CartSheet({ trigger }: CartSheetProps) {
                                 onClick={() => {
                                     setShowSuccessDialog(false);
                                     setIsOpen(false);
+                                    router.push(window.location.pathname.replace('/menu', '/orders'));
                                 }}
                             >
                                 Ver pedidos
                             </Button>
                             <Button
-                                variant="ghost"
-                                className="flex-1"
-                                onClick={() => {
-                                    setShowSuccessDialog(false);
-                                    setIsOpen(false);
-                                }}
+                                className="flex-1 bg-yellow-400 text-black hover:bg-yellow-500"
+                                onClick={handleContinueShopping}
                             >
-                                Continuar
+                                Fazer mais pedidos
                             </Button>
                         </div>
                     </div>
