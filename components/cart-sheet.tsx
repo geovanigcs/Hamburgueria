@@ -2,7 +2,7 @@
 
 import { Trash2 } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -18,18 +18,20 @@ import { useCart } from "@/contexts/cart-context";
 
 interface CartSheetProps {
     trigger?: React.ReactNode;
+    consumptionMethod?: "DINE_IN" | "TAKEAWAY";
 }
 
-export function CartSheet({ trigger }: CartSheetProps) {
+export function CartSheet({ trigger, consumptionMethod = "DINE_IN" }: CartSheetProps) {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { cartItems, updateQuantity, removeItem, clearCart, subtotal, total } = useCart();
     const [isOpen, setIsOpen] = useState(false);
     const [showCheckoutDialog, setShowCheckoutDialog] = useState(false);
-    const [showSuccessDialog, setShowSuccessDialog] = useState(false);
     const [customerName, setCustomerName] = useState("");
     const [customerCPF, setCustomerCPF] = useState("");
 
     const discount = 0;
+    const slug = searchParams.get("slug") || window.location.pathname.split("/")[1] || "gigios";
 
     const handleCheckout = () => {
         setShowCheckoutDialog(true);
@@ -37,17 +39,28 @@ export function CartSheet({ trigger }: CartSheetProps) {
 
     const handleFinalize = () => {
         if (customerName && customerCPF) {
-            setShowCheckoutDialog(false);
-            setShowSuccessDialog(true);
+            // Gerar número do pedido
+            const orderNumber = `GG${Date.now().toString().slice(-6)}`;
+
+            // Limpar carrinho
             clearCart();
+            setShowCheckoutDialog(false);
+            setIsOpen(false);
+
+            // Redirecionar para página de confirmação
+            const params = new URLSearchParams({
+                orderNumber,
+                customerName,
+                total: total.toFixed(2),
+                consumptionMethod,
+                slug,
+            });
+
+            router.push(`/${slug}/order-confirmation?${params.toString()}`);
+            
             setCustomerName("");
             setCustomerCPF("");
         }
-    };
-
-    const handleContinueShopping = () => {
-        setShowSuccessDialog(false);
-        setIsOpen(false);
     };
 
     return (
@@ -233,50 +246,7 @@ export function CartSheet({ trigger }: CartSheetProps) {
                 </div>
             )}
 
-            {/* Success Dialog */}
-            {showSuccessDialog && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-                    <div className="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-lg">
-                        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-600">
-                            <svg
-                                width="32"
-                                height="32"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="white"
-                                strokeWidth="3"
-                            >
-                                <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                        </div>
 
-                        <h2 className="mb-2 text-xl font-semibold">Pedido Efetuado!</h2>
-                        <p className="mb-6 text-sm text-gray-600">
-                            Seu pedido foi realizado com sucesso!
-                        </p>
-
-                        <div className="flex gap-2">
-                            <Button
-                                variant="ghost"
-                                className="flex-1 text-red-600"
-                                onClick={() => {
-                                    setShowSuccessDialog(false);
-                                    setIsOpen(false);
-                                    router.push(window.location.pathname.replace('/menu', '/orders'));
-                                }}
-                            >
-                                Ver pedidos
-                            </Button>
-                            <Button
-                                className="flex-1 bg-yellow-400 text-black hover:bg-yellow-500"
-                                onClick={handleContinueShopping}
-                            >
-                                Fazer mais pedidos
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </>
     );
 }

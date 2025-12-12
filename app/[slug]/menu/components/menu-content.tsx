@@ -211,7 +211,7 @@ export function MenuContent({ slug, consumptionMethod, restaurant }: MenuContent
                 R$ {total.toFixed(2).replace(".", ",")} <span className="text-sm text-gray-500">/ {itemCount} {itemCount === 1 ? 'item' : 'itens'}</span>
               </p>
             </div>
-            <CartButton />
+            <CartButton consumptionMethod={consumptionMethod as "DINE_IN" | "TAKEAWAY"} />
           </div>
         </motion.div>
       )}

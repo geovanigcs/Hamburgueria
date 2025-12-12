@@ -4,7 +4,7 @@ import { useGSAP } from "@gsap/react";
 import { motion } from "framer-motion";
 import gsap from "gsap";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 import { AnimatedBackground } from "@/components/animated-background";
 
@@ -63,9 +63,6 @@ export function WelcomeScreen({ slug, restaurantName }: WelcomeScreenProps) {
       ease: "power1.inOut",
     });
   }, []);
-
-  // Emojis flutuantes aleatórios
-  const floatingEmojis = ["🍔", "🍟", "🥤", "🍕", "🌮", "🍗", "🥓", "🧀"];
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-yellow-50 via-orange-50 to-red-50 px-6">
@@ -214,31 +211,6 @@ export function WelcomeScreen({ slug, restaurantName }: WelcomeScreenProps) {
         </motion.div>
       </div>
 
-      {/* Partículas de brilho */}
-      {isMounted && [...Array(20)].map((_, i) => {
-        const pos = sparklePositions[i];
-        return (
-          <motion.div
-            key={`sparkle-${i}`}
-            className="absolute h-1 w-1 rounded-full bg-yellow-400"
-            initial={{
-              x: pos.x,
-              y: pos.y,
-              opacity: 0,
-            }}
-            animate={{
-              opacity: [0, 1, 0],
-              scale: [0, 1, 0],
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              delay: pos.delay,
-              ease: "easeInOut",
-            }}
-          />
-        );
-      })}
     </div>
   );
 }
