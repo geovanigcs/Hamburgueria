@@ -6,6 +6,8 @@ import gsap from "gsap";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
+import { AnimatedBackground } from "@/components/animated-background";
+
 import ConsumptionMethodOption from "./consumption-method-option";
 
 interface WelcomeScreenProps {
@@ -15,18 +17,9 @@ interface WelcomeScreenProps {
 
 export function WelcomeScreen({ slug, restaurantName }: WelcomeScreenProps) {
   const [showContent, setShowContent] = useState(false);
-  const [windowSize, setWindowSize] = useState({ width: 1000, height: 1000 });
   const logoRef = useRef(null);
   const titleRef = useRef(null);
   const subtitleRef = useRef(null);
-  const emojiContainerRef = useRef(null);
-
-  useEffect(() => {
-    setWindowSize({
-      width: window.innerWidth,
-      height: window.innerHeight,
-    });
-  }, []);
 
   useGSAP(() => {
     const tl = gsap.timeline({
@@ -76,61 +69,7 @@ export function WelcomeScreen({ slug, restaurantName }: WelcomeScreenProps) {
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-yellow-50 via-orange-50 to-red-50 px-6">
-      {/* Emojis flutuantes de fundo */}
-      <div className="absolute inset-0 overflow-hidden" ref={emojiContainerRef}>
-        {floatingEmojis.map((emoji, index) => (
-          <motion.div
-            key={index}
-            className="absolute text-4xl opacity-20"
-            initial={{
-              x: Math.random() * windowSize.width,
-              y: -100,
-            }}
-            animate={{
-              y: windowSize.height + 100,
-              x: [
-                Math.random() * windowSize.width,
-                Math.random() * windowSize.width,
-              ],
-              rotate: [0, 360],
-            }}
-            transition={{
-              duration: 10 + Math.random() * 10,
-              repeat: Infinity,
-              delay: Math.random() * 5,
-              ease: "linear",
-            }}
-          >
-            {emoji}
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Círculos decorativos animados */}
-      <motion.div
-        className="absolute left-10 top-20 h-32 w-32 rounded-full bg-yellow-400/20"
-        animate={{
-          scale: [1, 1.2, 1],
-          rotate: [0, 180, 360],
-        }}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
-      <motion.div
-        className="absolute bottom-20 right-10 h-40 w-40 rounded-full bg-red-400/20"
-        animate={{
-          scale: [1, 1.3, 1],
-          rotate: [360, 180, 0],
-        }}
-        transition={{
-          duration: 10,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
+      <AnimatedBackground />
 
       {/* Conteúdo principal */}
       <div className="relative z-10 flex flex-col items-center gap-6">
@@ -276,27 +215,30 @@ export function WelcomeScreen({ slug, restaurantName }: WelcomeScreenProps) {
       </div>
 
       {/* Partículas de brilho */}
-      {[...Array(20)].map((_, i) => (
-        <motion.div
-          key={`sparkle-${i}`}
-          className="absolute h-1 w-1 rounded-full bg-yellow-400"
-          initial={{
-            x: Math.random() * windowSize.width,
-            y: Math.random() * windowSize.height,
-            opacity: 0,
-          }}
-          animate={{
-            opacity: [0, 1, 0],
-            scale: [0, 1, 0],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            delay: Math.random() * 3,
-            ease: "easeInOut",
-          }}
-        />
-      ))}
+      {isMounted && [...Array(20)].map((_, i) => {
+        const pos = sparklePositions[i];
+        return (
+          <motion.div
+            key={`sparkle-${i}`}
+            className="absolute h-1 w-1 rounded-full bg-yellow-400"
+            initial={{
+              x: pos.x,
+              y: pos.y,
+              opacity: 0,
+            }}
+            animate={{
+              opacity: [0, 1, 0],
+              scale: [0, 1, 0],
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              delay: pos.delay,
+              ease: "easeInOut",
+            }}
+          />
+        );
+      })}
     </div>
   );
 }

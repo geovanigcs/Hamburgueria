@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
+import { AnimatedBackground } from "@/components/animated-background";
 import { CategoryTabs } from "@/components/category-tabs";
 import { ProductCard } from "@/components/product-card";
 import { CATEGORIES } from "@/constants/products";
@@ -31,7 +32,8 @@ export function MenuContent({ slug, consumptionMethod, restaurant }: MenuContent
   const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="relative flex min-h-screen flex-col bg-gradient-to-br from-yellow-50 via-orange-50 to-red-50">
+      <AnimatedBackground />
       {/* Header with image */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
